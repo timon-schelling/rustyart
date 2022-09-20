@@ -1,0 +1,8 @@
+[package]
+name = "rustyart"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ordered-float = "3.1"
+nannou = "0.18"

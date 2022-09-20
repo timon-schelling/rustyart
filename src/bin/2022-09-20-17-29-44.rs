@@ -1,0 +1,250 @@
+use nannou::geom::*;
+use nannou::prelude::*;
+use nannou::rand::random_f32;
+use ordered_float::OrderedFloat;
+use std::f32::consts::PI;
+use std::iter::*;
+use std::time::{SystemTime, UNIX_EPOCH};
+
+fn main() {
+    nannou::app(model).update(update).run();
+}
+
+#[derive(Clone, Debug)]
+struct Particle {
+    position: Vec2,
+    radius: f32,
+    teleport: bool,
+    neighbours: Vec<Particle>,
+    draw_position: Vec2,
+}
+
+trait RankeableByDistance {
+    fn rank_by_distance(&self, others: Vec<Self>) -> Vec<Self>
+    where
+        Self: Sized;
+}
+
+impl RankeableByDistance for Particle {
+    fn rank_by_distance(&self, others: Vec<Self>) -> Vec<Self>
+    where
+        Self: Sized,
+    {
+        let mut ranking = others;
+        ranking
+            .sort_by_cached_key(|particle| OrderedFloat(particle.position.distance(self.position)));
+        ranking
+    }
+}
+
+impl RankeableByDistance for Vec2 {
+    fn rank_by_distance(&self, others: Vec<Self>) -> Vec<Self>
+    where
+        Self: Sized,
+    {
+        let mut ranking = others;
+        ranking.sort_by_cached_key(|particle| OrderedFloat(particle.distance(*self)));
+        ranking
+    }
+}
+
+#[derive(Debug)]
+struct Model {
+    freeze: bool,
+    hunters: Vec<Particle>,
+    runners: Vec<Particle>,
+}
+
+const ORIGIN: Vec2 = Vec2::ZERO;
+const RADIUS: f32 = 1000.0;
+
+fn model(app: &App) -> Model {
+    app.new_window()
+        .fullscreen()
+        .view(view)
+        .key_released(key_released)
+        .build()
+        .unwrap();
+
+    Model {
+        freeze: false,
+        hunters: (0..20)
+            .map(|x| Particle {
+                position: random_point_in_radius(&ORIGIN, RADIUS),
+                radius: 10.0,
+                teleport: false,
+                neighbours: vec![],
+                draw_position: ORIGIN,
+            })
+            .collect::<Vec<Particle>>(),
+        runners: (0..50)
+            .map(|x| Particle {
+                position: random_point_in_radius(&ORIGIN, RADIUS),
+                radius: 10.0,
+                teleport: false,
+                neighbours: vec![],
+                draw_position: ORIGIN,
+            })
+            .collect::<Vec<Particle>>(),
+    }
+}
+
+fn update(app: &App, model: &mut Model, _update: Update) {
+    let mut particles = model.hunters.clone();
+    particles.append(&mut model.runners.clone());
+
+    let hunters = model.hunters.clone();
+    let runners = model.runners.clone();
+
+    for hunter in model.hunters.iter_mut() {
+        if hunter.teleport {
+            hunter.teleport = false;
+            loop {
+                hunter.position = random_point_in_radius(&ORIGIN, RADIUS);
+                let ranking = hunter.rank_by_distance(particles.clone());
+                let other = ranking.get(1).unwrap();
+                let distance = hunter.position.distance(other.position);
+                if !(distance <= other.radius + hunter.radius) {
+                    break;
+                };
+            }
+            continue;
+        }
+
+        hunter.draw_position = hunter.position;
+
+        let mut ally_ranking = hunter.rank_by_distance(hunters.clone());
+        ally_ranking.remove(0);
+        let ally = ally_ranking.first().unwrap();
+        let ally_distance = hunter.position.distance(ally.position);
+
+        let enemy_ranking = hunter.rank_by_distance(runners.clone());
+        let enemy = enemy_ranking.first().unwrap();
+        let enemy_distance = hunter.position.distance(enemy.position);
+
+        let origin_distance = hunter.position.distance(ORIGIN);
+
+        if enemy_distance < enemy.radius + hunter.radius
+            || origin_distance > RADIUS
+            || ally_distance < hunter.radius + ally.radius
+        {
+            hunter.teleport = true;
+            continue;
+        }
+
+        hunter.position -= ((hunter.position - enemy.position).normalize() * 0.5)
+            + random_point_in_radius(&ORIGIN, 0.2)
+    }
+
+    for runner in model.runners.iter_mut() {
+        if runner.teleport {
+            runner.teleport = false;
+            loop {
+                runner.position = random_point_in_radius(&ORIGIN, RADIUS);
+                let ranking = runner.rank_by_distance(particles.clone());
+                let other = ranking.get(1).unwrap();
+                let distance = runner.position.distance(other.position);
+                if !(distance <= other.radius + runner.radius) {
+                    break;
+                };
+            }
+            runner.neighbours = vec![];
+            continue;
+        }
+
+        runner.draw_position = runner.position;
+
+        let mut ally_ranking = runner.rank_by_distance(runners.clone());
+        ally_ranking.remove(0);
+        let ally = ally_ranking.first().unwrap();
+        let ally_distance = runner.position.distance(ally.position);
+
+        let enemy_ranking = runner.rank_by_distance(hunters.clone());
+        let enemy = enemy_ranking.first().unwrap();
+        let enemy_distance = runner.position.distance(enemy.position);
+
+        let origin_distance = runner.position.distance(ORIGIN);
+
+        if enemy_distance < enemy.radius + runner.radius
+            || origin_distance > RADIUS
+            || ally_distance < runner.radius + ally.radius
+        {
+            runner.teleport = true;
+            continue;
+        }
+
+        runner.position += ((runner.position - enemy.position).normalize() * 0.5)
+            + random_point_in_radius(&ORIGIN, 0.2)
+    }
+}
+
+fn view(app: &App, model: &Model, frame: Frame) {
+    let draw = app.draw();
+    let win = app.window_rect();
+    if app.keys.down.contains(&Key::Delete) {
+        draw.background().color(BLACK);
+    }
+
+    let win_p = win.pad(0.0);
+    draw.rect()
+        .xy(win_p.xy())
+        .wh(win_p.wh())
+        .rgba(0.0, 0.0, 0.0, 0.01);
+
+    for hunter in model.hunters.iter() {
+        draw.ellipse()
+            .radius(hunter.radius)
+            .xy(hunter.draw_position)
+            .color(STEELBLUE);
+    }
+
+    for runner in model.runners.iter() {
+        draw.ellipse()
+            .radius(runner.radius)
+            .xy(runner.draw_position)
+            .color(RED);
+    }
+
+    // draw.line()
+    //     .start(random_point_in_radius(&start_point, 1000.0))
+    //     .end(random_point_in_radius(&start_point, 1000.0))
+    //     .weight(4.0)
+    //     .end_cap_round()
+    //     .color(STEELBLUE);
+
+    draw.to_frame(app, &frame).unwrap();
+}
+
+fn key_released(app: &App, model: &mut Model, key: Key) {
+    match key {
+        Key::S => {
+            let now = SystemTime::now();
+            app.main_window().capture_frame(
+                "out/".to_owned()
+                    + &app.exe_name().unwrap()
+                    + "#"
+                    + &now
+                        .duration_since(UNIX_EPOCH)
+                        .unwrap()
+                        .as_millis()
+                        .to_string()
+                    + ".png",
+            );
+        }
+        Key::F => {
+            model.freeze = !model.freeze;
+            if model.freeze {
+                app.set_loop_mode(LoopMode::loop_once());
+            } else {
+                app.set_loop_mode(LoopMode::RefreshSync);
+            }
+        }
+        _ => (),
+    }
+}
+
+fn random_point_in_radius(o: &Vec2, r: f32) -> Vec2 {
+    let r = r * random_f32().sqrt();
+    let t = random_f32() * 2.0 * PI;
+    vec2(o.x + r * t.cos(), o.y + r * t.sin())
+}
