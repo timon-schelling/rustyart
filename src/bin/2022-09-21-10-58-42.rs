@@ -87,22 +87,16 @@ fn view(app: &App, model: &Model, frame: Frame) {
         .wh(win_p.wh())
         .rgba(0.0, 0.0, 0.0, 0.03);
 
-    let points = model.particles.iter().map(|particle| pt2(particle.position.x, particle.position.y)).collect::<Vec<Point2>>();
+    for particle in model.particles.iter() {
+        draw.ellipse()
+            .radius(particle.radius)
+            .xy(particle.draw_position)
+            .color(YELLOW);
 
-    geom::Quad(points.try_into());
-
-    if false {
-        for particle in model.particles.iter() {   
-            draw.ellipse()
-                .radius(particle.radius)
-                .xy(particle.draw_position)
-                .color(YELLOW);
-
-            draw.ellipse()
-                .radius(particle.radius)
-                .xy(particle.target)
-                .color(RED);
-        }
+        draw.ellipse()
+            .radius(particle.radius)
+            .xy(particle.target)
+            .color(RED);
     }
 
     draw.to_frame(app, &frame).unwrap();

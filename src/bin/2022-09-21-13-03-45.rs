@@ -1,7 +1,7 @@
+use delaunator::{triangulate, next_halfedge, Point, Triangulation, EMPTY};
 use nannou::geom::*;
 use nannou::prelude::*;
 use nannou::rand::random_f32;
-use ordered_float::OrderedFloat;
 use std::f32::consts::PI;
 use std::iter::*;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -38,7 +38,7 @@ fn model(app: &App) -> Model {
 
     Model {
         freeze: false,
-        particles: (0..2000)
+        particles: (0..400)
             .map(|_| Particle {
                 position: random_point_in_radius(&ORIGIN, RADIUS),
                 radius: 5.0,
@@ -50,7 +50,6 @@ fn model(app: &App) -> Model {
 }
 
 fn update(app: &App, model: &mut Model, _update: Update) {
-
     if model.freeze {
         return;
     }
@@ -58,14 +57,18 @@ fn update(app: &App, model: &mut Model, _update: Update) {
     for particle in model.particles.iter_mut() {
         particle.draw_position = particle.position;
         if particle.position.distance(particle.target) <= particle.radius {
-            particle.target = random_point_in_radius(&particle.position, TARGET_RADIUS)
+            loop {
+                particle.target = random_point_in_radius(&particle.position, TARGET_RADIUS);
+                if particle.target.distance(ORIGIN) <= RADIUS {
+                    break;
+                };
+            }
         }
-        particle.position -= (particle.position - particle.target).normalize() * 1.5;
+        particle.position -= (particle.position - particle.target).normalize() * 0.2;
     }
 }
 
 fn view(app: &App, model: &Model, frame: Frame) {
-
     if model.freeze {
         return;
     }
@@ -80,18 +83,38 @@ fn view(app: &App, model: &Model, frame: Frame) {
     draw.rect()
         .xy(win_p.xy())
         .wh(win_p.wh())
-        .rgba(0.0, 0.0, 0.0, 0.03);
+        .rgba(0.0, 0.0, 0.0, 0.04);
+
+    let points = model
+        .particles
+        .iter()
+        .map(|particle| Point {
+            x: particle.position.x.to_f64().unwrap(),
+            y: particle.position.y.to_f64().unwrap(),
+        })
+        .collect::<Vec<Point>>();
+
+    let vertecies = model.particles.iter().map(|particle| particle.position).collect::<Vec<Vec2>>();
+    
+    let triangulation = triangulate(&points);
+
+    for i in 0..triangulation.triangles.len() {
+        if i > triangulation.halfedges[i] || triangulation.halfedges[i] == EMPTY {
+            let start = vertecies[triangulation.triangles[i]];
+            let end = vertecies[triangulation.triangles[next_halfedge(i)]];
+            draw.line()
+                .color(BLUE)
+                .weight(3.0)
+                .caps_round()
+                .points(start, end);
+        }
+    }
 
     for particle in model.particles.iter() {
         draw.ellipse()
             .radius(particle.radius)
             .xy(particle.draw_position)
             .color(YELLOW);
-
-        draw.ellipse()
-            .radius(particle.radius)
-            .xy(particle.target)
-            .color(RED);
     }
 
     draw.to_frame(app, &frame).unwrap();
