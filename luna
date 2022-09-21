@@ -1,0 +1,60 @@
+#!/usr/bin/env sh
+
+cmd_run() {
+    arg="$1"
+    if [ -z "$arg" ] ; then
+        path=$(ls src/bin -rt | tail -1)
+        name=${path%.rs}
+        cargo run --release --bin "$name"
+        exit
+    fi
+    if case $arg in -*) true;; *) false;; esac; then
+        path=$(ls src/bin -rt | tail $arg | head -n 1)
+        name=${path%.rs}
+        cargo run --release --bin "$name"
+        exit
+    fi
+    cargo run --release --bin $arg
+}
+
+cmd_new() {
+    test
+}
+
+cmd_save() {
+    git add .
+    git commit -m "-"
+    git push
+}
+
+cmd_help() {
+    cat << EOF
+usage: luna <command>
+commands:
+    run | r
+    new | n
+    save | s
+    help
+EOF
+}
+
+main() {
+    cmd="$1"
+    if [ -z "$cmd" ] ; then
+        cmd_help
+        exit
+    fi
+    shift > /dev/null 2>&1
+    case "$cmd" in
+        run|n )
+            cmd_run $@;;
+        new|n )
+            cmd_new $@;;
+        save|s )
+            cmd_save $@;;
+        help|* )
+            cmd_help $@;;
+    esac
+}
+
+main $@
