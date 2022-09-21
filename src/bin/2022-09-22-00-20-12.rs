@@ -121,14 +121,10 @@ fn view(app: &App, model: &Model, frame: Frame) {
             if distance > PARTICLE_DISTANCE_MAX {
                 continue;
             }
-            let distance_mapped = 1.
-                - cubic::ease_out(
-                    map_range(distance, 0., PARTICLE_DISTANCE_MAX, 0., 1.),
-                    0.,
-                    1.,
-                    1.,
-                );
-            let color = hsla(distance_mapped, 1., 0.5, distance_mapped);
+            let distance_mapped = map_range(distance, 0., PARTICLE_DISTANCE_MAX, 0., 1.);
+            let distance_mapped_eased = 1.
+                - cubic::ease_out(distance_mapped, 0., 1., 1.);
+            let color = hsla(distance_mapped / 4. + 0.27, 1., 0.5, distance_mapped_eased);
             draw.line()
                 .color(color)
                 .weight(LINE_WIGHT)

@@ -33,11 +33,11 @@ const BACKGROUND_COLOR: Rgba = Alpha {
     alpha: 0.1,
 };
 const PARTICLE_RADIUS: f32 = 25.;
-const PARTICLE_NUMBER: i32 = 200;
+const PARTICLE_NUMBER: i32 = 500;
 const PARTICLE_SPEED: f32 = 0.7;
 const PARTICLE_TARGET_RADIUS: f32 = 200.;
-const PARTICLE_DISTANCE_MAX: f32 = 265.;
-const LINE_WIGHT: f32 = 20.;
+const PARTICLE_DISTANCE_MAX: f32 = 120.;
+const LINE_WIGHT: f32 = 12.;
 
 fn model(app: &App) -> Model {
     app.new_window()
@@ -121,14 +121,10 @@ fn view(app: &App, model: &Model, frame: Frame) {
             if distance > PARTICLE_DISTANCE_MAX {
                 continue;
             }
-            let distance_mapped = 1.
-                - cubic::ease_out(
-                    map_range(distance, 0., PARTICLE_DISTANCE_MAX, 0., 1.),
-                    0.,
-                    1.,
-                    1.,
-                );
-            let color = hsla(distance_mapped, 1., 0.5, distance_mapped);
+            let distance_mapped = map_range(distance, 0., PARTICLE_DISTANCE_MAX, 0., 1.);
+            let distance_mapped_eased = 1.
+                - cubic::ease_out(distance_mapped, 0., 1., 1.);
+            let color = hsla(distance_mapped / 3. + 0.2, 1., 0.5, distance_mapped_eased);
             draw.line()
                 .color(color)
                 .weight(LINE_WIGHT)
