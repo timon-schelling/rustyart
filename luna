@@ -32,7 +32,6 @@ cmd_copy() {
         cd src/bin
         path=$(ls -rt | tail -1)
         new="$(date +%F-%H-%M-%S).rs"
-        echo "$path"
         cp "$path" "$new"
         cd ../..
         code "./src/bin/$new"
@@ -42,7 +41,6 @@ cmd_copy() {
         cd src/bin
         path=$(ls -rt | tail $arg | head -n 1)
         new="$(date +%F-%H-%M-%S).rs"
-        echo "$path"
         cp "$path" "$new"
         cd ../..
         code "./src/bin/$new"
@@ -51,7 +49,6 @@ cmd_copy() {
         cd src/bin
         path=${arg%.rt}
         new="$(date +%F-%H-%M-%S).rs"
-        echo "$path"
         cp "$path.rs" "$new"
         cd ../..
         code "./src/bin/$new"
