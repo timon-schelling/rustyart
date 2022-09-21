@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 ordered-float = "3.1"
 nannou = "0.18"
+delaunator = "1"

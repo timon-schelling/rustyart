@@ -265,11 +265,6 @@ fn key_released(app: &App, model: &mut Model, key: Key) {
         }
         Key::F => {
             model.freeze = !model.freeze;
-            // if model.freeze {
-            //     app.set_loop_mode(LoopMode::loop_once());
-            // } else {
-            //     app.set_loop_mode(LoopMode::RefreshSync);
-            // }
         }
         _ => (),
     }
