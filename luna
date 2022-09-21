@@ -5,20 +5,59 @@ cmd_run() {
     if [ -z "$arg" ] ; then
         path=$(ls src/bin -rt | tail -1)
         name=${path%.rs}
-        cargo run --release --bin "$name"
+        cargo run --release --bin $name
         exit
     fi
     if case $arg in -*) true;; *) false;; esac; then
         path=$(ls src/bin -rt | tail $arg | head -n 1)
         name=${path%.rs}
-        cargo run --release --bin "$name"
+        cargo run --release --bin $name
         exit
     fi
-    cargo run --release --bin $arg
+    name="$arg"
+    cargo run --release --bin $name
 }
 
 cmd_new() {
-    test
+    cd src/bin
+    new="$(date +%F-%H-%M-%S).rs"
+    touch "$new"
+    cd ../..
+    code "./src/bin/$new"
+}
+
+cmd_copy() {
+    arg="$1"
+    if [ -z "$arg" ] ; then
+        cd src/bin
+        path=$(ls -rt | tail -1)
+        new="$(date +%F-%H-%M-%S).rs"
+        echo "$path"
+        cp "$path" "$new"
+        cd ../..
+        code "./src/bin/$new"
+        exit
+    fi
+    if case $arg in -*) true;; *) false;; esac; then
+        cd src/bin
+        path=$(ls -rt | tail $arg | head -n 1)
+        new="$(date +%F-%H-%M-%S).rs"
+        echo "$path"
+        cp "$path" "$new"
+        cd ../..
+        code "./src/bin/$new"
+        exit
+    else
+        cd src/bin
+        path=${arg%.rt}
+        new="$(date +%F-%H-%M-%S).rs"
+        echo "$path"
+        cp "$path.rs" "$new"
+        cd ../..
+        code "./src/bin/$new"
+        exit
+    fi
+    
 }
 
 cmd_save() {
@@ -33,6 +72,7 @@ usage: luna <command>
 commands:
     run | r
     new | n
+    copy | c
     save | s
     help
 EOF
@@ -46,10 +86,12 @@ main() {
     fi
     shift > /dev/null 2>&1
     case "$cmd" in
-        run|n )
+        run|r )
             cmd_run $@;;
         new|n )
             cmd_new $@;;
+        copy|c )
+            cmd_copy $@;;
         save|s )
             cmd_save $@;;
         help|* )
