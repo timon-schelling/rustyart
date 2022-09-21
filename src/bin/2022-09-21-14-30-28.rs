@@ -1,5 +1,6 @@
 use delaunator::{triangulate, next_halfedge, Point, Triangulation, EMPTY};
 use nannou::geom::*;
+use nannou::ease::*;
 use nannou::prelude::*;
 use nannou::rand::random_f32;
 use std::f32::consts::PI;
@@ -38,7 +39,7 @@ fn model(app: &App) -> Model {
 
     Model {
         freeze: false,
-        particles: (0..250)
+        particles: (0..350)
             .map(|_| Particle {
                 position: random_point_in_radius(&ORIGIN, RADIUS),
                 radius: 25.0,
@@ -83,7 +84,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
     draw.rect()
         .xy(win_p.xy())
         .wh(win_p.wh())
-        .rgba(0.0, 0.0, 0.0, 1.0);
+        .rgba(0.0, 0.0, 0.0, 0.1);
 
     let points = model
         .particles
@@ -103,8 +104,8 @@ fn view(app: &App, model: &Model, frame: Frame) {
             let start = vertecies[triangulation.triangles[i]];
             let end = vertecies[triangulation.triangles[next_halfedge(i)]];
             let distance = start.distance(end);
-            let distance_mapped = map_range(distance, 0.0, 400.0, 0.0, 1.0);
-            let color = hsla( 1.0, 0.0, 1.0, 1.0 - distance_mapped);
+            let distance_mapped = 1. - cubic::ease_out(map_range(distance, 0., 400., 0., 1.), 0., 1., 1.);
+            let color = hsla( 1., 0., 1., distance_mapped);
             draw.line()
                 .color(color)
                 .weight(4.5)
@@ -113,7 +114,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
         }
     }
 
-    for particle in model.particles.iter() {
+    for particle in model.particles.iter().take(0) {
         draw.ellipse()
             .radius(3.0)
             .xy(particle.draw_position)
