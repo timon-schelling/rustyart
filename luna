@@ -3,13 +3,13 @@
 cmd_run() {
     arg="$1"
     if [ -z "$arg" ] ; then
-        path=$(ls src/bin -rt | tail -1)
+        path=$(ls src/bin | tail -1)
         name=${path%.rs}
         cargo run --release --bin $name
         exit
     fi
     if case $arg in -*) true;; *) false;; esac; then
-        path=$(ls src/bin -rt | tail $arg | head -n 1)
+        path=$(ls src/bin | tail $arg | head -n 1)
         name=${path%.rs}
         cargo run --release --bin $name
         exit
@@ -30,7 +30,7 @@ cmd_copy() {
     arg="$1"
     if [ -z "$arg" ] ; then
         cd src/bin
-        path=$(ls -rt | tail -1)
+        path=$(ls | tail -1)
         new="$(date +%F-%H-%M-%S).rs"
         cp "$path" "$new"
         cd ../..
@@ -39,7 +39,7 @@ cmd_copy() {
     fi
     if case $arg in -*) true;; *) false;; esac; then
         cd src/bin
-        path=$(ls -rt | tail $arg | head -n 1)
+        path=$(ls | tail $arg | head -n 1)
         new="$(date +%F-%H-%M-%S).rs"
         cp "$path" "$new"
         cd ../..
