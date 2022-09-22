@@ -1,7 +1,6 @@
 use nannou::geom::*;
 use nannou::prelude::*;
 use nannou::rand::random_f32;
-use ordered_float::OrderedFloat;
 use std::f32::consts::PI;
 use std::iter::*;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -49,7 +48,7 @@ fn model(app: &App) -> Model {
     }
 }
 
-fn update(app: &App, model: &mut Model, _update: Update) {
+fn update(_app: &App, model: &mut Model, _update: Update) {
 
     if model.freeze {
         return;

@@ -69,7 +69,7 @@ fn model(app: &App) -> Model {
     Model {
         freeze: false,
         hunters: (0..20)
-            .map(|x| Particle {
+            .map(|_| Particle {
                 position: random_point_in_radius(&ORIGIN, RADIUS),
                 radius: 10.0,
                 teleport: false,
@@ -78,7 +78,7 @@ fn model(app: &App) -> Model {
             })
             .collect::<Vec<Particle>>(),
         runners: (0..50)
-            .map(|x| Particle {
+            .map(|_| Particle {
                 position: random_point_in_radius(&ORIGIN, RADIUS),
                 radius: 10.0,
                 teleport: false,
@@ -89,7 +89,7 @@ fn model(app: &App) -> Model {
     }
 }
 
-fn update(app: &App, model: &mut Model, _update: Update) {
+fn update(_app: &App, model: &mut Model, _update: Update) {
     let mut particles = model.hunters.clone();
     particles.append(&mut model.runners.clone());
 
