@@ -4,7 +4,6 @@ use nannou::ease::*;
 use nannou::geom::*;
 use nannou::prelude::*;
 use nannou::rand::random_f32;
-use nannou::winit::platform::unix::x11::ffi::Connection;
 use std::f32::consts::PI;
 use std::iter::*;
 use std::time::{SystemTime, UNIX_EPOCH};

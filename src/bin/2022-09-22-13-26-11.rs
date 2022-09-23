@@ -4,7 +4,6 @@ use nannou::ease::*;
 use nannou::geom::*;
 use nannou::prelude::*;
 use nannou::rand::random_f32;
-use nannou::winit::platform::unix::x11::ffi::Connection;
 use std::f32::consts::PI;
 use std::iter::*;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -137,6 +136,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
     for link in model.links.iter() {
         let start = model.particles[link.a].position;
         let end = model.particles[link.b].position;
+        let _since = link.since;
         let distance = start.distance(end);
         if distance > PARTICLE_DISTANCE_MAX {
             continue;

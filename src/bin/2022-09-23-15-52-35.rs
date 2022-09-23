@@ -4,7 +4,6 @@ use nannou::ease::*;
 use nannou::geom::*;
 use nannou::prelude::*;
 use nannou::rand::random_f32;
-use nannou::winit::platform::unix::x11::ffi::Connection;
 use std::f32::consts::PI;
 use std::iter::*;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -163,8 +162,6 @@ fn view(app: &App, model: &Model, frame: Frame) {
         let since = link.since.elapsed().unwrap().as_secs_f32() * 1.;
         let since_mapped: f32 = map_range::<f32, f32>(since, 0., 2., 0., 1.).clamp(0., 1.);
         let since_mapped_eased = 1. - cubic::ease_out(since_mapped, 0., 1., 1.);
-
-        println!("{}, {} = {}", since, since_mapped, since_mapped_eased);
 
         let color = hsla(
             distance_mapped / 1.5 + (app.time / 10.),
