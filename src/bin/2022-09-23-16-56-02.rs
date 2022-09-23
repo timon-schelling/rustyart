@@ -144,7 +144,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
         .wh(win_p.wh())
         .color(BACKGROUND_COLOR);
 
-    let blend_draw = draw.color_blend(BLEND_DARKEST.clone()); 
+    let blend_draw = draw.color_blend(BLEND_LIGHTEST.clone()); 
 
     for link in model.links.iter() {
         let start = model.particles[link.a].position;
@@ -162,15 +162,16 @@ fn view(app: &App, model: &Model, frame: Frame) {
         let since_mapped: f32 = map_range::<f32, f32>(since, 0.0, 1.7, 1., 0.).clamp(0., 1.);
         let since_mapped_eased = 1. - cubic::ease_out(since_mapped, 0., 1., 1.);
 
-        let color = hsla(
-            distance_mapped / 1.5 + (app.time / 60.),
-            1.,
-            0.5,
-            distance_mapped_eased * since_mapped_eased,
-        );
+        let color = hsla(distance_mapped / 1.5 + (app.time / 60.), 1., 0.5, 1.);
         
         blend_draw.line()
             .color(color)
+            .weight(LINE_WIGHT)
+            .caps_round()
+            .points(start, end);
+
+        draw.line()
+            .rgba(0., 0., 0., 1. - (distance_mapped_eased * since_mapped_eased))
             .weight(LINE_WIGHT)
             .caps_round()
             .points(start, end);
