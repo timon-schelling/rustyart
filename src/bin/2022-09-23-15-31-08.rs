@@ -136,15 +136,17 @@ fn view(app: &App, model: &Model, frame: Frame) {
     for link in model.links.iter() {
         let start = model.particles[link.a].position;
         let end = model.particles[link.b].position;
+        
         let distance = start.distance(end);
         if distance > PARTICLE_DISTANCE_MAX {
             continue;
         }
         let distance_mapped = map_range(distance, 0., PARTICLE_DISTANCE_MAX, 0., 1.);
         let distance_mapped_eased = 1. - cubic::ease_out(distance_mapped, 0., 1., 1.);
+
         let since_mapped = map_range(link.since.elapsed().unwrap().as_secs_f32() * -1., 0., 2., 0., 1.);
         let since_mapped_eased = 1. - cubic::ease_in(since_mapped, 0., 1., 1.);
-        println!("{} * {} = {}", distance_mapped_eased, since_mapped_eased, distance_mapped_eased * since_mapped_eased);
+        
         let color = hsla(distance_mapped / 1.5 + (app.time / 10.), 1., 0.5, distance_mapped_eased * since_mapped_eased);
         draw.line()
             .color(color)
