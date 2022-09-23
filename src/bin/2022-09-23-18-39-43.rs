@@ -107,7 +107,7 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
         let neighbours = particle.rank_by_distance(&particles);
         let neighbour = neighbours.get(1).unwrap();
         let neighbour_distance = particle.position.distance(neighbour.position);
-        let neighbour_distance_mapped = 1. - map_range::<f32, f32>(neighbour_distance, 0., 30., 0., 1.).clamp(0., 1.);
+        let neighbour_distance_mapped = 1. - map_range::<f32, f32>(neighbour_distance, 0., 100., 0., 1.).clamp(0., 1.);
         let neighbour_distance_mapped_eased = 1. - cubic::ease_out(neighbour_distance_mapped, 0., 1., 1.);
 
         let target_vec = (particle.target - particle.position).normalize() * neighbour_distance_mapped_eased;
