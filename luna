@@ -63,6 +63,11 @@ cmd_save() {
     git push
 }
 
+cmd_savecopy() {
+    cmd_save
+    cmd_copy $@
+}
+
 cmd_help() {
     cat << EOF
 usage: luna <command>
@@ -91,6 +96,8 @@ main() {
             cmd_copy $@;;
         save|s )
             cmd_save $@;;
+        savecopy|sc )
+            cmd_savecopy $@;;
         help|* )
             cmd_help $@;;
     esac

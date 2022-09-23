@@ -17,7 +17,6 @@ struct Particle {
     position: Vec2,
     radius: f32,
     target: Vec2,
-    draw_position: Vec2,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -67,7 +66,6 @@ fn model(app: &App) -> Model {
                 position: random_point_in_radius(&ORIGIN, RADIUS),
                 radius: PARTICLE_RADIUS,
                 target: random_point_in_radius(&ORIGIN, RADIUS),
-                draw_position: ORIGIN,
             })
             .collect::<Vec<Particle>>(),
         links: vec![],
@@ -80,7 +78,6 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
     }
 
     for particle in model.particles.iter_mut() {
-        particle.draw_position = particle.position;
         if particle.position.distance(particle.target) <= particle.radius {
             loop {
                 particle.target =
@@ -160,11 +157,11 @@ fn view(app: &App, model: &Model, frame: Frame) {
         let distance_mapped_eased = 1. - cubic::ease_out(distance_mapped, 0., 1., 1.);
 
         let since = link.since.elapsed().unwrap().as_secs_f32() * 1.;
-        let since_mapped: f32 = map_range::<f32, f32>(since, 0., 2.5, 1., 0.).clamp(0., 1.);
+        let since_mapped: f32 = map_range::<f32, f32>(since, 0.0, 1.7, 1., 0.).clamp(0., 1.);
         let since_mapped_eased = 1. - cubic::ease_out(since_mapped, 0., 1., 1.);
 
         let color = hsla(
-            distance_mapped / 1.5 + (app.time / 10.),
+            distance_mapped / 1.5 + (app.time / 60.),
             1.,
             0.5,
             distance_mapped_eased * since_mapped_eased,
@@ -177,10 +174,10 @@ fn view(app: &App, model: &Model, frame: Frame) {
             .points(start, end);
     }
 
-    for particle in model.particles.iter().take(0) {
+    for particle in model.particles.iter() {
         draw.ellipse()
-            .radius(3.0)
-            .xy(particle.draw_position)
+            .radius(LINE_WIGHT)
+            .xy(particle.position)
             .color(BLACK);
     }
 

@@ -160,11 +160,11 @@ fn view(app: &App, model: &Model, frame: Frame) {
         let distance_mapped_eased = 1. - cubic::ease_out(distance_mapped, 0., 1., 1.);
 
         let since = link.since.elapsed().unwrap().as_secs_f32() * 1.;
-        let since_mapped: f32 = map_range::<f32, f32>(since, 0., 2.5, 1., 0.).clamp(0., 1.);
+        let since_mapped: f32 = map_range::<f32, f32>(since, 0., 1.7, 1., 0.).clamp(0., 1.);
         let since_mapped_eased = 1. - cubic::ease_out(since_mapped, 0., 1., 1.);
 
         let color = hsla(
-            distance_mapped / 1.5 + (app.time / 10.),
+            distance_mapped / 1.5 + (app.time / 60.),
             1.,
             0.5,
             distance_mapped_eased * since_mapped_eased,
