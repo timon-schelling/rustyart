@@ -54,7 +54,7 @@ impl RankeableByDistance for Particle {
 }
 
 const ORIGIN: Vec2 = Vec2::ZERO;
-const RADIUS: f32 = 900.;
+const RADIUS: f32 = 700.;
 const BACKGROUND_COLOR: Rgba = Alpha {
     color: Rgb {
         red: 0.,
@@ -65,7 +65,7 @@ const BACKGROUND_COLOR: Rgba = Alpha {
     alpha: 0.05,
 };
 const PARTICLE_RADIUS: f32 = 25.;
-const PARTICLE_NUMBER: i32 = 200;
+const PARTICLE_NUMBER: i32 = 60;
 const PARTICLE_SPEED: f32 = 0.5;
 const PARTICLE_TARGET_RADIUS: f32 = 220.;
 const PARTICLE_TARGET_TIME: f32 = 8.;
