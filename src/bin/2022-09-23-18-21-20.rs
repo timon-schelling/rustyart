@@ -109,7 +109,7 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
         let neighbour_distance = particle.position.distance(neighbour.position);
         let neighbour_distance_mapped = map_range::<f32, f32>(neighbour_distance, 0., 100., 1., 0.).clamp(0., 1.);
 
-        let target_vec = (particle.target - particle.position).normalize();
+        let target_vec = (particle.target - particle.position).normalize() * (1. -neighbour_distance_mapped);
         let neighbour_vec = (particle.position - neighbour.position).normalize() * neighbour_distance_mapped;
 
         particle.position += (target_vec + neighbour_vec).normalize() * PARTICLE_SPEED;
