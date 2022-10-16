@@ -155,8 +155,8 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
             {
                 Some(link) => link.clone(),
                 None => Link {
-                    a: a,
-                    b: b,
+                    a,
+                    b,
                     since: SystemTime::now(),
                 },
             };
