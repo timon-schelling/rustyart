@@ -1,4 +1,5 @@
 use delaunator::{next_halfedge, triangulate, Point, EMPTY};
+use nannou::color;
 use nannou::color::*;
 use nannou::ease::*;
 use nannou::geom::*;
@@ -65,12 +66,12 @@ const BACKGROUND_COLOR: Rgba = Alpha {
     alpha: 0.05,
 };
 const PARTICLE_RADIUS: f32 = 25.;
-const PARTICLE_NUMBER: i32 = 800;
+const PARTICLE_NUMBER: i32 = 150;
 const PARTICLE_SPEED: f32 = 0.5;
 const PARTICLE_TARGET_RADIUS: f32 = 220.;
 const PARTICLE_TARGET_TIME: f32 = 8.;
-const PARTICLE_DISTANCE_MAX: f32 = 170.;
-const LINE_WIGHT: f32 = 4.;
+const PARTICLE_DISTANCE_MAX: f32 = 400.;
+const LINE_WIGHT: f32 = 12.;
 
 fn model(app: &App) -> Model {
     app.new_window()
@@ -120,7 +121,7 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
         let neighbour = neighbours.get(1).unwrap();
         let neighbour_distance = particle.position.distance(neighbour.position);
         let neighbour_distance_mapped =
-            1. - map_range::<f32, f32>(neighbour_distance, 0., 40., 0., 1.).clamp(0., 1.);
+            1. - map_range::<f32, f32>(neighbour_distance, 0., 100., 0., 1.).clamp(0., 1.);
         let neighbour_distance_mapped_eased =
             1. - cubic::ease_out(neighbour_distance_mapped, 0., 1., 1.);
 
@@ -155,8 +156,8 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
             {
                 Some(link) => link.clone(),
                 None => Link {
-                    a,
-                    b,
+                    a: a,
+                    b: b,
                     since: SystemTime::now(),
                 },
             };
@@ -184,6 +185,13 @@ fn view(app: &App, model: &Model, frame: Frame) {
         .wh(win_p.wh())
         .color(BACKGROUND_COLOR);
 
+    //linear-gradient(90deg, hsla(49, 100%, 50%, 1) 0%, hsla(0, 100%, 50%, 1) 37%, hsla(216, 100%, 50%, 1) 100%)
+    let gradient = Gradient::with_domain(vec![
+        (0.0, hsla(49. / 360., 1., 0.5, 1.)),
+        (0.37, hsla(0. / 360., 1., 0.5, 1.)),
+        (1.0, hsla(216. / 360., 1., 0.5, 1.)),
+    ]);
+
     for link in model.links.iter() {
         let start = model.particles[link.a].position;
         let end = model.particles[link.b].position;
@@ -193,19 +201,16 @@ fn view(app: &App, model: &Model, frame: Frame) {
             continue;
         }
         let distance_mapped =
-            map_range::<f32, f32>(distance, 0., PARTICLE_DISTANCE_MAX, 0., 1.).clamp(0., 1.);
+            map_range::<f32, f32>(distance, PARTICLE_RADIUS*2., PARTICLE_DISTANCE_MAX, 0., 1.).clamp(0., 1.);
         let distance_mapped_eased = 1. - cubic::ease_out(distance_mapped, 0., 1., 1.);
 
         let since = link.since.elapsed().unwrap().as_secs_f32();
         let since_mapped: f32 = map_range::<f32, f32>(since, 0.0, 1.7, 1., 0.).clamp(0., 1.);
         let since_mapped_eased = 1. - cubic::ease_out(since_mapped, 0., 1., 1.);
 
-        let color = hsla(
-            distance_mapped / 1.5 + (app.time / 60.),
-            1.,
-            0.5,
-            (distance_mapped_eased * since_mapped_eased).clamp(0., 0.85),
-        );
+
+        let mut color = gradient.get(1.-(distance_mapped*1.6 - 0.4).clamp(0., 1.));
+        color.alpha = (distance_mapped_eased * since_mapped_eased).clamp(0., 0.85);
 
         draw.line()
             .color(color)

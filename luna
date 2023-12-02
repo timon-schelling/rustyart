@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 
 cmd_run() {
+    export GDK_BACKEND=x11
     arg="$1"
     if [ -z "$arg" ] ; then
         path=$(ls src/bin | tail -1)
