@@ -63,7 +63,7 @@ const BACKGROUND_COLOR: Rgba = Alpha {
         blue: 0.,
         standard: std::marker::PhantomData,
     },
-    alpha: 0.05,
+    alpha: 0.015,
 };
 const PARTICLE_RADIUS: f32 = 25.;
 const PARTICLE_NUMBER: i32 = 150;
@@ -185,10 +185,9 @@ fn view(app: &App, model: &Model, frame: Frame) {
         .wh(win_p.wh())
         .color(BACKGROUND_COLOR);
 
-    //linear-gradient(90deg, hsla(49, 100%, 50%, 1) 0%, hsla(0, 100%, 50%, 1) 37%, hsla(216, 100%, 50%, 1) 100%)
     let gradient = Gradient::with_domain(vec![
-        (0.0, hsla(49. / 360., 1., 0.5, 1.)),
-        (0.55, hsla(0. / 360., 1., 0.5, 1.)),
+        (0.0, hsla(41. / 360., 1., 0.5, 1.)),
+        (0.65, hsla(0. / 360., 1., 0.5, 1.)),
         (1.0, hsla(234. / 360., 1., 0.5, 1.)),
     ]);
 
@@ -202,7 +201,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
         }
         let distance_mapped =
             map_range::<f32, f32>(distance, PARTICLE_RADIUS*2., PARTICLE_DISTANCE_MAX, 0., 1.).clamp(0., 1.);
-        let distance_mapped_eased = 1. - cubic::ease_out(distance_mapped, 0., 1., 1.);
+        let distance_mapped_eased = 1. - cubic::ease_out(distance_mapped, 0.01, 1., 1.);
 
         let since = link.since.elapsed().unwrap().as_secs_f32();
         let since_mapped: f32 = map_range::<f32, f32>(since, 0.0, 1.7, 1., 0.).clamp(0., 1.);
@@ -210,7 +209,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
 
 
         let mut color = gradient.get(1.-(distance_mapped*1.5 - 0.2).clamp(0., 1.));
-        color.alpha = (distance_mapped_eased * since_mapped_eased).clamp(0., 0.85);
+        color.alpha = ((distance_mapped_eased/2.) * (since_mapped_eased*2.)).clamp(0., 1.);
 
         draw.line()
             .color(color)

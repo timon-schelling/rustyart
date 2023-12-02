@@ -63,7 +63,7 @@ const BACKGROUND_COLOR: Rgba = Alpha {
         blue: 0.,
         standard: std::marker::PhantomData,
     },
-    alpha: 0.05,
+    alpha: 0.03,
 };
 const PARTICLE_RADIUS: f32 = 25.;
 const PARTICLE_NUMBER: i32 = 150;
@@ -188,7 +188,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
     //linear-gradient(90deg, hsla(49, 100%, 50%, 1) 0%, hsla(0, 100%, 50%, 1) 37%, hsla(216, 100%, 50%, 1) 100%)
     let gradient = Gradient::with_domain(vec![
         (0.0, hsla(49. / 360., 1., 0.5, 1.)),
-        (0.55, hsla(0. / 360., 1., 0.5, 1.)),
+        (0.65, hsla(0. / 360., 1., 0.5, 1.)),
         (1.0, hsla(234. / 360., 1., 0.5, 1.)),
     ]);
 

@@ -179,16 +179,16 @@ fn view(app: &App, model: &Model, frame: Frame) {
         draw.background().color(BLACK);
     }
 
-    let win_p = win.pad(0.0);
-    draw.rect()
-        .xy(win_p.xy())
-        .wh(win_p.wh())
-        .color(BACKGROUND_COLOR);
+    // let win_p = win.pad(0.0);
+    // draw.rect()
+    //     .xy(win_p.xy())
+    //     .wh(win_p.wh())
+    //     .color(BACKGROUND_COLOR);
 
     //linear-gradient(90deg, hsla(49, 100%, 50%, 1) 0%, hsla(0, 100%, 50%, 1) 37%, hsla(216, 100%, 50%, 1) 100%)
     let gradient = Gradient::with_domain(vec![
         (0.0, hsla(49. / 360., 1., 0.5, 1.)),
-        (0.55, hsla(0. / 360., 1., 0.5, 1.)),
+        (0.65, hsla(0. / 360., 1., 0.5, 1.)),
         (1.0, hsla(234. / 360., 1., 0.5, 1.)),
     ]);
 
